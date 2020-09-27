@@ -1,0 +1,47 @@
+NAME: William Chen
+EMAIL: billy.lj.chen@gmail.com
+ID: 405131881
+
+Description of included files
+
+lab0.c
+This single C source module takes in a standard input and outputs to a standard output using input/output redirection which essentially manipulates the file descriptors. The possible arguments that can be used in this code include --input, --output, --segfault, and --catch. The --input takes in an input file with --input=filename, specifying filename as the input. Similarly, --output takes in an output with --output=filename, specifying filename as the standard output file. --segfault flag forces a segmentation fault but setting a char pointer to NULL and then storing a value through the null pointer. --catch flag catches the segmentation fault by calling signal(2) so that it can catch SIGSEGV. --catch logss the error message.
+
+Makefile
+The Makefile builds the lab0 executable and also includes the -Wall and -Wextra. The check runs a smoke test to check lab0.c and determines if it runs successfully or not. The clean target then deletes all of the remaining file created in the Makefile including the lab0 executable. The dist target builds the tarball
+
+backtrace.png
+This is a screenshot of a gdb session which shows a segmentation fault and shows the associated stack-trace.
+
+breakpoint.png
+This is a screenshot of a gdb session which shows a breakpoint where the segmentation fault should occur nd using variable inspection showing that the pointer creted is NULL, causing  segmentation fault. 
+
+README
+Shows identification information, description of included files, and smoke test cases.
+
+Smoke Test Cases
+noArgTest
+-checks for the correct exit code when no argument is passed or used
+
+invalidArgTest
+-check for correct exit code if invalid argument is passed
+
+redirectTest
+-checks correct results and exit code when given valid input and output options and determines if successful input/output redirection is performed
+
+inputTest
+-checks for correct exit code and error message if file does not exist but is still used in argument
+-makes sure correct exit code and error message is passed if argument called without actual input
+-makes sure for correct exit code and correct redirection given valid file and valid --input option
+
+outputTest
+- checking for error message when failing creat(2) because of invalid file without write permissions given as argument
+- makes sure correct exit code and error message is passed if argument called without actual output 
+- makes sure for correct exit code and correct redirection given valid file and valid --output option
+
+catchTest
+- check to make sure code returns correct exit code and error message for forced segmentation fault and correct catch. 
+
+
+
+
