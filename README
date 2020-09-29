@@ -1,0 +1,22 @@
+NAME: William Chen
+EMAIL: billy.lj.chen@gmail.com
+ID: 405131881
+
+Files Included:
+
+Makefile:
+Takes in the following targets:
+default: creates executable lab1a with -Wextra and -Wall
+clean: gets rid of files that are created by Makefile
+dist: Makes tarball
+
+README: 
+This file
+
+lab1a.c
+Single C source module that compiles cleanly and can run without any options which converts terminal to non-canonical input mode with no echo
+Or it can take in --shell=program which forks a new process and then execs the program given. Full duplex terminal and passes input and output between two processes
+
+Testing Methodology
+By running ./lab1a by itself we can test the non-canonical input mode with no echo
+By running ./lab1a --shell="/bin/bash" we test the programs ability to pass input and output between two processes.
