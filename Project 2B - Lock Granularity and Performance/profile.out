@@ -1,0 +1,201 @@
+Total: 724 samples
+     577  79.7%  79.7%      724 100.0% threadMain
+      27   3.7%  83.4%       27   3.7% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:165
+      23   3.2%  86.6%       23   3.2% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1721
+      16   2.2%  88.8%       16   2.2% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:200
+      14   1.9%  90.7%       84  11.6% SortedList_insert
+      14   1.9%  92.7%       63   8.7% SortedList_lookup
+       9   1.2%  93.9%        9   1.2% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:130
+       9   1.2%  95.2%        9   1.2% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1720
+       6   0.8%  96.0%        6   0.8% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1729
+       5   0.7%  96.7%        5   0.7% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:203
+       5   0.7%  97.4%        5   0.7% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1730
+       4   0.6%  97.9%        4   0.6% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:205
+       3   0.4%  98.3%        3   0.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:160
+       3   0.4%  98.8%        3   0.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:204
+       3   0.4%  99.2%        3   0.4% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:1714
+       2   0.3%  99.4%        2   0.3% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:134
+       2   0.3%  99.7%        2   0.3% ?? /usr/src/debug////////glibc-2.17-c758a686/string/../sysdeps/x86_64/multiarch/strcmp-sse42.S:202
+       2   0.3% 100.0%        2   0.3% _init
+       0   0.0% 100.0%      724 100.0% ?? /usr/src/debug////////glibc-2.17-c758a686/misc/../sysdeps/unix/sysv/linux/x86_64/clone.S:111
+       0   0.0% 100.0%      724 100.0% start_thread
+ROUTINE ====================== threadMain in /u/ms/ugrad/lijay/Lab2b/lab2_list.c
+   577    724 Total samples (flat / cumulative)
+     .      .   90:     int val = (int)*key;
+     .      .   91:     val = val*71;
+     .      .   92: 	return val % nlists;
+     .      .   93: }
+     .      .   94: 
+---
+     .      .   95: void* threadMain(void* arr){
+     .      .   96:     long i;
+     .      .   97:     SortedListElement_t* listIndex = arr;
+     .      .   98:     long waitTime = 0;
+     .      .   99:     struct timespec start, end;
+     .      .  100:     //insert
+     .      .  101:     for (i = 0; i < iterations; i++) {
+     .      .  102: 		unsigned long hashVal = hash(listIndex[i].key);
+     .      .  103: 		int stat = clock_gettime(CLOCK_MONOTONIC, &start);
+     .      .  104:         if(stat < 0){
+     .      .  105:             fprintf(stderr, "Error with clock_gettime start: %s\n", strerror(errno));
+     .      .  106:             exit(1);
+     .      .  107:         }
+     .      .  108: 		if (syncOp == 'm') {
+     .      .  109: 	        pthread_mutex_lock(mutex + hashVal);
+     .      .  110: 	    }
+     .      .  111:         else if (syncOp == 's') {
+   390    390  112: 	    	while (__sync_lock_test_and_set(spin + hashVal, 1));
+     .      .  113: 	    }
+     .      .  114:         stat = clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  115:         if(stat < 0){
+     .      .  116:             fprintf(stderr, "Error with clock_gettime end: %s\n", strerror(errno));
+     .      .  117:             exit(1);
+     .      .  118:         }
+     .     84  119: 		SortedList_insert(lists + hashVal, (SortedListElement_t *)(listIndex + i));
+     .      .  120:     	if (syncOp == 'm') {
+     .      .  121:         	pthread_mutex_unlock(mutex + hashVal);
+     .      .  122:    		}
+     .      .  123:         else if (syncOp == 's'){
+     .      .  124:         	__sync_lock_release(spin + hashVal);
+     .      .  125:     	}
+     .      .  126:         waitTime += 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec;
+     .      .  127: 	}
+     .      .  128:     SortedListElement_t* search;
+     .      .  129:     i = 0;
+     .      .  130:     for(; i < iterations; i++){
+     .      .  131:         int val = hash(listIndex[i].key);
+     .      .  132:         int stat = clock_gettime(CLOCK_MONOTONIC, &start);
+     .      .  133:         if(stat < 0){
+     .      .  134:             fprintf(stderr, "Error with clock_gettime start: %s\n", strerror(errno));
+     .      .  135:             exit(1);
+     .      .  136:         }
+     .      .  137: 		if (syncOp == 'm') {
+     .      .  138: 	        pthread_mutex_lock(mutex + val);
+     .      .  139: 	    }
+     .      .  140:         else if (syncOp == 's') {
+   187    187  141: 	    	while (__sync_lock_test_and_set(spin + val, 1));
+     .      .  142: 	    }
+     .      .  143:         stat = clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  144:         if(stat < 0){
+     .      .  145:             fprintf(stderr, "Error with clock_gettime end: %s\n", strerror(errno));
+     .      .  146:             exit(1);
+     .      .  147:         }
+     .      .  148: 
+     .     63  149:         search = SortedList_lookup(lists + val, listIndex[i].key);
+     .      .  150:         if(search == NULL){
+     .      .  151:             fprintf(stderr, "Error with looking up element: %s\n", strerror(errno));
+     .      .  152:             exit(2);
+     .      .  153:         }
+     .      .  154:         stat = SortedList_delete(search);
+     .      .  155:         if(stat != 0){
+     .      .  156:             fprintf(stderr, "Error with deleted element: %s\n", strerror(errno));
+     .      .  157:             exit(2);
+     .      .  158:         }
+     .      .  159: 
+     .      .  160:         if (syncOp == 'm') {
+     .      .  161:         	pthread_mutex_unlock(mutex + val);
+     .      .  162:    		} 
+     .      .  163:         else if (syncOp == 's'){
+     .      .  164:         	__sync_lock_release(spin + val);
+     .      .  165:     	}
+     .      .  166:         waitTime += 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec;
+     .      .  167:     }
+     .      .  168:     return (void*)waitTime;
+     .      .  169: 
+     .      .  170: }
+---
+     .      .  171: 
+     .      .  172: void printLine(int numThreads, int numIterations, int numLists, long numOps, long runTime, long avgTime, long waitLock){
+     .      .  173:     fprintf(stdout, ",%d,%d,%d,%ld,%ld,%ld,%ld\n", numThreads, numIterations, numLists, numOps, runTime, avgTime, waitLock);
+     .      .  174: }
+     .      .  175: 
+ROUTINE ====================== threadMain in /u/ms/ugrad/lijay/Lab2b/lab2_list.c
+   577    724 Total samples (flat / cumulative)
+     .      .   90:     int val = (int)*key;
+     .      .   91:     val = val*71;
+     .      .   92: 	return val % nlists;
+     .      .   93: }
+     .      .   94: 
+---
+     .      .   95: void* threadMain(void* arr){
+     .      .   96:     long i;
+     .      .   97:     SortedListElement_t* listIndex = arr;
+     .      .   98:     long waitTime = 0;
+     .      .   99:     struct timespec start, end;
+     .      .  100:     //insert
+     .      .  101:     for (i = 0; i < iterations; i++) {
+     .      .  102: 		unsigned long hashVal = hash(listIndex[i].key);
+     .      .  103: 		int stat = clock_gettime(CLOCK_MONOTONIC, &start);
+     .      .  104:         if(stat < 0){
+     .      .  105:             fprintf(stderr, "Error with clock_gettime start: %s\n", strerror(errno));
+     .      .  106:             exit(1);
+     .      .  107:         }
+     .      .  108: 		if (syncOp == 'm') {
+     .      .  109: 	        pthread_mutex_lock(mutex + hashVal);
+     .      .  110: 	    }
+     .      .  111:         else if (syncOp == 's') {
+   390    390  112: 	    	while (__sync_lock_test_and_set(spin + hashVal, 1));
+     .      .  113: 	    }
+     .      .  114:         stat = clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  115:         if(stat < 0){
+     .      .  116:             fprintf(stderr, "Error with clock_gettime end: %s\n", strerror(errno));
+     .      .  117:             exit(1);
+     .      .  118:         }
+     .     84  119: 		SortedList_insert(lists + hashVal, (SortedListElement_t *)(listIndex + i));
+     .      .  120:     	if (syncOp == 'm') {
+     .      .  121:         	pthread_mutex_unlock(mutex + hashVal);
+     .      .  122:    		}
+     .      .  123:         else if (syncOp == 's'){
+     .      .  124:         	__sync_lock_release(spin + hashVal);
+     .      .  125:     	}
+     .      .  126:         waitTime += 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec;
+     .      .  127: 	}
+     .      .  128:     SortedListElement_t* search;
+     .      .  129:     i = 0;
+     .      .  130:     for(; i < iterations; i++){
+     .      .  131:         int val = hash(listIndex[i].key);
+     .      .  132:         int stat = clock_gettime(CLOCK_MONOTONIC, &start);
+     .      .  133:         if(stat < 0){
+     .      .  134:             fprintf(stderr, "Error with clock_gettime start: %s\n", strerror(errno));
+     .      .  135:             exit(1);
+     .      .  136:         }
+     .      .  137: 		if (syncOp == 'm') {
+     .      .  138: 	        pthread_mutex_lock(mutex + val);
+     .      .  139: 	    }
+     .      .  140:         else if (syncOp == 's') {
+   187    187  141: 	    	while (__sync_lock_test_and_set(spin + val, 1));
+     .      .  142: 	    }
+     .      .  143:         stat = clock_gettime(CLOCK_MONOTONIC, &end);
+     .      .  144:         if(stat < 0){
+     .      .  145:             fprintf(stderr, "Error with clock_gettime end: %s\n", strerror(errno));
+     .      .  146:             exit(1);
+     .      .  147:         }
+     .      .  148: 
+     .     63  149:         search = SortedList_lookup(lists + val, listIndex[i].key);
+     .      .  150:         if(search == NULL){
+     .      .  151:             fprintf(stderr, "Error with looking up element: %s\n", strerror(errno));
+     .      .  152:             exit(2);
+     .      .  153:         }
+     .      .  154:         stat = SortedList_delete(search);
+     .      .  155:         if(stat != 0){
+     .      .  156:             fprintf(stderr, "Error with deleted element: %s\n", strerror(errno));
+     .      .  157:             exit(2);
+     .      .  158:         }
+     .      .  159: 
+     .      .  160:         if (syncOp == 'm') {
+     .      .  161:         	pthread_mutex_unlock(mutex + val);
+     .      .  162:    		} 
+     .      .  163:         else if (syncOp == 's'){
+     .      .  164:         	__sync_lock_release(spin + val);
+     .      .  165:     	}
+     .      .  166:         waitTime += 1000000000 * (end.tv_sec - start.tv_sec) + end.tv_nsec - start.tv_nsec;
+     .      .  167:     }
+     .      .  168:     return (void*)waitTime;
+     .      .  169: 
+     .      .  170: }
+---
+     .      .  171: 
+     .      .  172: void printLine(int numThreads, int numIterations, int numLists, long numOps, long runTime, long avgTime, long waitLock){
+     .      .  173:     fprintf(stdout, ",%d,%d,%d,%ld,%ld,%ld,%ld\n", numThreads, numIterations, numLists, numOps, runTime, avgTime, waitLock);
+     .      .  174: }
+     .      .  175: 
