@@ -1,0 +1,10 @@
+NAME: William Chen
+EMAIL: billy.lj.chen@gmail.com
+ID: 405131881
+
+Description of included files:
+
+lab4c_tcp.c: C source file that builds and runs on beaglebone to communicate with a server using TCP connection
+lab4c_tls.c: C source file that builds and runs on beaglebone to communicate with a server using SSL connection
+Makefile: includes default to build executables lab4c_tcp and lab4c_tls, clean to remove executables and tarball, dist to create tarball
+README: this file
